@@ -3,3 +3,12 @@ praw.ini
 
 # python
 __pycache__/
+
+# vscode settings
+.vscode
+
+# venv
+/bin
+/include
+/lib
+pyvenv.cfg
