@@ -23,5 +23,5 @@ def get_course_prereqs(soup):
                 pre_reqs = " ".join(list(filter(None, p.text.split(" "))))
                 break
         except:
-            pre_reqs = "I could not find pre-reqs for this course"
+            pre_reqs = "Sorry, I couldn't find anything for this course"
     return pre_reqs
