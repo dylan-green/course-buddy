@@ -1,0 +1,5 @@
+# praw file
+praw.ini
+
+# python
+__pycache__/
