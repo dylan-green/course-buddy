@@ -3,7 +3,7 @@ import sys
 import scrape
 import os
 
-USER_AGENT = "github.com/dylan-green/ubc-course-bot:v0.1.0 (by /u/mr_nefario)"
+USER_AGENT = "github.com/dylan-green/course-buddy:v0.1.0 (by /u/mr_nefario)"
 CALL_PHRASE = "@course\\_buddy"
 SUBREDDIT = "ubc"
 
