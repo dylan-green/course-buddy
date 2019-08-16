@@ -1,16 +1,26 @@
 import praw
 import sys
 import scrape
+import os
 
 USER_AGENT = "github.com/dylan-green/ubc-course-bot:v0.1.0 (by /u/mr_nefario)"
-PRAW_CLIENT = "course_buddy"
 CALL_PHRASE = "@course\\_buddy"
 SUBREDDIT = "ubc"
+
+reddit_username = os.environ["reddit_username"]
+reddit_password = os.environ["reddit_password"]
+client_id = os.environ["client_id"]
+client_secret = os.environ["client_secret"]
 
 
 class Buddy:
     def __init__(self):
-        self._reddit = praw.Reddit(PRAW_CLIENT, user_agent=USER_AGENT)
+        self._reddit = praw.Reddit(
+            client_id=client_id,
+            client_secret=client_secret,
+            username=reddit_username,
+            password=reddit_password,
+            user_agent=USER_AGENT)
         self._subreddit = self._reddit.subreddit(SUBREDDIT)
         self._redditor = self._reddit.user.me()
         self._response = None
