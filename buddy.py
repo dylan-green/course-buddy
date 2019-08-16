@@ -40,8 +40,7 @@ class Buddy:
         course_code = args[3]
 
         soup = scrape.request_course_page(course_dept, course_code)
-        prereqs = scrape.get_course_prereqs(soup)
-        self._response = prereqs
+        self._response = scrape.get_course_prereqs(soup)
         self._reply()
 
 
