@@ -4,8 +4,6 @@ import sys
 import re
 from bs4 import BeautifulSoup
 
-pre_reqs = None
-
 
 def request_course_page(course_dept, course_code):
     course_url = "https://courses.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-course&dept={}&course={}".format(
