@@ -56,8 +56,6 @@ class Buddy:
         self._comment.reply(self._response)
 
     def _prereqs(self, args):
-        course_dept = None
-        course_code = None
         try:
             course_dept = args[2]
             course_code = args[3]
