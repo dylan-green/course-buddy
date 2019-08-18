@@ -5,12 +5,12 @@ import os
 
 USER_AGENT = "github.com/dylan-green/course-buddy:v0.1.0 (by /u/mr_nefario)"
 CALL_PHRASE = "@course\\_buddy"
-SUBREDDIT = "ubc"
 
 reddit_username = os.environ["reddit_username"]
 reddit_password = os.environ["reddit_password"]
 client_id = os.environ["client_id"]
 client_secret = os.environ["client_secret"]
+subreddit = os.environ["subreddit"]
 
 
 class Buddy:
@@ -21,7 +21,7 @@ class Buddy:
             username=reddit_username,
             password=reddit_password,
             user_agent=USER_AGENT)
-        self._subreddit = self._reddit.subreddit(SUBREDDIT)
+        self._subreddit = self._reddit.subreddit(subreddit)
         self._redditor = self._reddit.user.me()
         self._response = None
         self._comment = None
@@ -35,7 +35,7 @@ class Buddy:
                 command = body[tag + 1]
                 self._comment = comment
                 self._actions[command](body[tag:])
-            except (ValueError, IndexError):
+            except (ValueError, IndexError, KeyError):
                 pass  # the butter
 
     def _reply(self):
