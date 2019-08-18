@@ -1,1 +1,1 @@
-worker: python3 buddy.py
+worker: python3 src/buddy.py
