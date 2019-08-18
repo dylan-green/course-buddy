@@ -6,7 +6,10 @@ This bot uses PRAW (Python Reddit API Wrapper), and is deployed on Heroku.
 Right now the bot provides pre-requisite course information for courses at the University of British Columbia.
 It only replies when called, and a valid call to the bot is `@course_buddy <service> <course department> <course code>`.
 
-Services right now are limited to `prereqs`, though new services will be coming soon.
+#### Services 
+`prereqs`: lists all required and recommend prerequisite courses
+
+`summary`: provides a brief summary of the course
 
 ## Contributing
 I'd love help adding new features, so if you'd like to contribute start by cloning the repo. 
