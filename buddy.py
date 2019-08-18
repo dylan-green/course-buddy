@@ -2,15 +2,16 @@ import praw
 import sys
 import scrape
 import os
+from subject_codes import subject_codes
 
 USER_AGENT = "github.com/dylan-green/course-buddy:v0.1.0 (by /u/mr_nefario)"
 CALL_PHRASE = "@course\\_buddy"
 
-reddit_username = os.environ["reddit_username"]
-reddit_password = os.environ["reddit_password"]
-client_id = os.environ["client_id"]
-client_secret = os.environ["client_secret"]
-subreddit = os.environ["subreddit"]
+reddit_user = os.environ["REDDIT_USER"]
+reddit_pass = os.environ["REDDIT_PASS"]
+client_id = os.environ["CLIENT_ID"]
+client_secret = os.environ["CLIENT_SECRET"]
+subreddit = os.environ["SUBREDDIT"]
 
 
 class Buddy:
@@ -18,14 +19,14 @@ class Buddy:
         self._reddit = praw.Reddit(
             client_id=client_id,
             client_secret=client_secret,
-            username=reddit_username,
-            password=reddit_password,
+            username=reddit_user,
+            password=reddit_pass,
             user_agent=USER_AGENT)
         self._subreddit = self._reddit.subreddit(subreddit)
         self._redditor = self._reddit.user.me()
         self._response = None
         self._comment = None
-        self._actions = {"prereqs": self._prereqs}
+        self._actions = {"prereqs": self._prereqs, "summary": self._summary}
 
     def read_comments(self):
         for comment in self._subreddit.stream.comments(skip_existing=True):
@@ -39,7 +40,6 @@ class Buddy:
                 pass  # the butter
 
     def _reply(self):
-        # print(self._response)
         try:
             self._comment.reply(self._response)
         except Exception:
@@ -52,6 +52,9 @@ class Buddy:
         soup = scrape.request_course_page(course_dept, course_code)
         self._response = scrape.get_course_prereqs(soup)
         self._reply()
+
+    def _summary(self, args):
+        pass
 
 
 def main():
