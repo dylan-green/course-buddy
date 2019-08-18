@@ -31,29 +31,45 @@ class Buddy:
     def read_comments(self):
         for comment in self._subreddit.stream.comments(skip_existing=True):
             body = comment.body.split(" ")
+            tag = None
+            action = None
+
             try:
                 tag = body.index(CALL_PHRASE)
-                command = body[tag + 1]
+                action = body[tag + 1]
                 self._comment = comment
-                self._actions[command](body[tag:])
-            except (ValueError, IndexError, KeyError):
-                pass  # the butter
+                assert action in self._actions
+            except AssertionError:
+                # reply to calls to the bot with invalid action requests
+                self._response = "Sorry, {} is not a valid request.".format(
+                    action)
+                self._reply()
+            except (ValueError, IndexError):
+                # body.index() throws ValueError if there's no @course_buddy tag
+                # body[tag + 1] throws IndexError if there's nothing after the tag
+                pass  # the butter.
+            else:
+                # call the action method with the rest of the comment body
+                self._actions[action](body[tag:])
 
     def _reply(self):
-        try:
-            self._comment.reply(self._response)
-        except Exception:
-            print(Exception)
+        self._comment.reply(self._response)
 
     def _prereqs(self, args):
-        course_dept = args[2]
-        course_code = args[3]
-
-        soup = scrape.request_course_page(course_dept, course_code)
-        self._response = scrape.get_course_prereqs(soup)
-        self._reply()
+        course_dept = None
+        course_code = None
+        try:
+            course_dept = args[2]
+            course_code = args[3]
+            assert course_dept.upper() in subject_codes
+            soup = scrape.request_course_page(course_dept, course_code)
+            self._response = scrape.get_course_prereqs(soup)
+            self._reply()
+        except (IndexError, AssertionError):
+            pass
 
     def _summary(self, args):
+        # stub for a method that replies with the course summary
         pass
 
 
