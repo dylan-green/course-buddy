@@ -19,4 +19,4 @@ Then run `pip install -r requirements.txt`.
 
 You'll also need to create a `.env` file with the necessary environment variables to create a PRAW Reddit instance.
 
-To run the bot locally just run `python3 buddy.py`.
+To run the bot locally just run `python3 src/buddy.py`.
