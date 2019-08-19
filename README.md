@@ -18,10 +18,15 @@ See [this page](https://docs.python.org/3/tutorial/venv.html) and follow the ste
 Then run `pip install -r requirements.txt`.
 
 You'll need to set the necessary environment variables to create a PRAW Reddit instance:
+
 `REDDIT_USER=<username>`
+
 `REDDIT_PASS=<password>`
+
 `CLIENT_ID=<client id>`
+
 `CLIENT_SECRET=<secret>`
+
 `SUBREDDIT=coursebuddy`
 
 `coursebuddy` is the subreddit for development and testing; the deployement environment points to `r/ubc`.
