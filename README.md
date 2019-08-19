@@ -17,6 +17,13 @@ I'd love help adding new features, so if you'd like to contribute start by cloni
 See [this page](https://docs.python.org/3/tutorial/venv.html) and follow the steps to set up a virtual python environment.
 Then run `pip install -r requirements.txt`.
 
-You'll also need to create a `.env` file with the necessary environment variables to create a PRAW Reddit instance.
+You'll need to set the necessary environment variables to create a PRAW Reddit instance:
+`REDDIT_USER=<username>`
+`REDDIT_PASS=<password>`
+`CLIENT_ID=<client id>`
+`CLIENT_SECRET=<secret>`
+`SUBREDDIT=coursebuddy`
+
+`coursebuddy` is the subreddit for development and testing; the deployement environment points to `r/ubc`.
 
 To run the bot locally just run `python3 src/buddy.py`.
