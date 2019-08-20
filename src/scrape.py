@@ -9,7 +9,6 @@ def request_course_page(subject="", course_code=""):
         subject, course_code
     )
     response = requests.get(course_url)
-    # Returns soup; the parsed bs4 object
     return BeautifulSoup(response.text, "html.parser")
 
 
