@@ -1,7 +1,7 @@
-import praw
-import sys
-import scrape
 import os
+import praw
+import scrape
+from collections import namedtuple
 from subject_codes import subject_codes
 
 USER_AGENT = "github.com/dylan-green/course-buddy:v0.1.0 (by /u/mr_nefario)"
@@ -12,6 +12,9 @@ reddit_pass = os.environ["REDDIT_PASS"]
 client_id = os.environ["CLIENT_ID"]
 client_secret = os.environ["CLIENT_SECRET"]
 subreddit = os.environ["SUBREDDIT"]
+
+UserRequest = namedtuple(
+    'UserRequest', ['action', 'subject', 'course_code'])
 
 
 class Buddy:
@@ -31,44 +34,47 @@ class Buddy:
     def read_comments(self):
         for comment in self._subreddit.stream.comments(skip_existing=True):
             body = comment.body.split(" ")
-            tag = None
-            action = None
+            user_request = parse_comment_body(body)
 
-            try:
-                tag = body.index(CALL_PHRASE)
-                action = body[tag + 1]
+            if user_request is not None:
                 self._comment = comment
-                assert action in self._actions
-            except AssertionError:
-                # reply to calls to the bot with invalid action requests
-                self._response = "Sorry, {} is not a valid request.".format(
-                    action)
-                self._reply()
-            except (ValueError, IndexError):
-                # body.index() throws ValueError if there's no @course_buddy tag
-                # body[tag + 1] throws IndexError if there's nothing after the tag
-                pass  # the butter.
-            else:
-                # call the action method with the rest of the comment body
-                self._actions[action](body[tag:])
+                action = user_request.action
+                subject = user_request.subject.upper()
+                course_code = user_request.course_code
+                try:
+                    assert action in self._actions, "Sorry, I don't understand {}.".format(
+                        action)
+                    assert subject in subject_codes, "Sorry, {} isn't a subject code.".format(
+                        subject)
+                except AssertionError as error:
+                    self._response = error
+                    self._reply()
+                else:
+                    self._actions[action](subject, course_code)
 
     def _reply(self):
         self._comment.reply(self._response)
 
-    def _prereqs(self, args):
-        try:
-            course_dept = args[2]
-            course_code = args[3]
-            assert course_dept.upper() in subject_codes
-            soup = scrape.request_course_page(course_dept, course_code)
-            self._response = scrape.get_course_prereqs(soup)
-            self._reply()
-        except (IndexError, AssertionError):
-            pass
+    def _prereqs(self, subject, course_code):
+        soup = scrape.request_course_page(subject, course_code)
+        self._response = scrape.get_course_prereqs(soup)
+        self._reply()
 
-    def _summary(self, args):
-        # stub for a method that replies with the course summary
-        pass
+    def _summary(self, subject, course_code):
+        soup = scrape.request_course_page(subject, course_code)
+        self._response = scrape.get_course_summary(soup)
+        self._reply()
+
+
+def parse_comment_body(body):
+    try:
+        base = body.index(CALL_PHRASE)
+        action = body[base + 1]
+        subject = body[base + 2]
+        course_code = body[base + 3]
+        return UserRequest(action, subject, course_code)
+    except (ValueError, IndexError):
+        return None
 
 
 def main():
