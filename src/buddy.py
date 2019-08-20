@@ -26,7 +26,6 @@ class Buddy:
             password=reddit_pass,
             user_agent=USER_AGENT)
         self._subreddit = self._reddit.subreddit(subreddit)
-        self._redditor = self._reddit.user.me()
         self._response = None
         self._comment = None
         self._actions = {"prereqs": self._prereqs, "summary": self._summary}
@@ -36,18 +35,19 @@ class Buddy:
             body = comment.body.split(" ")
             user_request = parse_comment_body(body)
 
-            if user_request is not None:
+            if user_request:
                 self._comment = comment
                 action = user_request.action
                 subject = user_request.subject.upper()
                 course_code = user_request.course_code
-                try:
-                    assert action in self._actions, "Sorry, I don't understand {}.".format(
+
+                if action not in self._actions:
+                    self._response = "Sorry, I don't understand {}.".format(
                         action)
-                    assert subject in subject_codes, "Sorry, {} isn't a subject code.".format(
+                    self._reply()
+                elif subject not in subject_codes:
+                    self._response = "Sorry, {} isn't a subject code.".format(
                         subject)
-                except AssertionError as error:
-                    self._response = error
                     self._reply()
                 else:
                     self._actions[action](subject, course_code)
