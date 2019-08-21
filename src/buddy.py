@@ -1,8 +1,10 @@
 import os
+import sys
 import praw
 import scrape
 from collections import namedtuple
 from subject_codes import subject_codes
+
 
 USER_AGENT = "github.com/dylan-green/course-buddy:v0.1.0 (by /u/mr_nefario)"
 CALL_PHRASE = "@course\\_buddy"
@@ -12,9 +14,6 @@ reddit_pass = os.environ["REDDIT_PASS"]
 client_id = os.environ["CLIENT_ID"]
 client_secret = os.environ["CLIENT_SECRET"]
 subreddit = os.environ["SUBREDDIT"]
-
-UserRequest = namedtuple(
-    'UserRequest', ['action', 'subject', 'course_code'])
 
 
 class Buddy:
@@ -31,26 +30,33 @@ class Buddy:
         self._actions = {"prereqs": self._prereqs, "summary": self._summary}
 
     def read_comments(self):
+        # stream.comments retrieves new comments as they become available
         for comment in self._subreddit.stream.comments(skip_existing=True):
-            body = comment.body.split(" ")
-            user_request = parse_comment_body(body)
+            # only read comments posted by other users
+            # reddit_user is the username of self
+            if comment.author != reddit_user:
+                body = comment.body.split(" ")
+                user_request = parse_comment_body(body)
 
-            if user_request:
-                self._comment = comment
-                action = user_request.action
-                subject = user_request.subject.upper()
-                course_code = user_request.course_code
+                if user_request:  # @course_buddy was called in the comment
+                    # user_request = (action, subject, course_code)
+                    self._comment = comment
+                    action = user_request.action
+                    subject = user_request.subject.upper()
+                    course_code = user_request.course_code
 
-                if action not in self._actions:
-                    self._response = "Sorry, I don't understand {}.".format(
-                        action)
-                    self._reply()
-                elif subject not in subject_codes:
-                    self._response = "Sorry, {} isn't a subject code.".format(
-                        subject)
-                    self._reply()
-                else:
-                    self._actions[action](subject, course_code)
+                    if action not in self._actions:
+                        # @course_buddy called with an invalid action
+                        self._response = "Sorry, I don't understand {}.".format(
+                            action)
+                        self._reply()
+                    elif subject not in subject_codes:
+                        # @course_buddy called with an incorrect subject code
+                        self._response = "Sorry, {} isn't a subject code.".format(
+                            subject)
+                        self._reply()
+                    else:
+                        self._actions[action](subject, course_code)
 
     def _reply(self):
         self._comment.reply(self._response)
@@ -66,15 +72,24 @@ class Buddy:
         self._reply()
 
 
+UserRequest = namedtuple(
+    'UserRequest', ['action', 'subject', 'course_code'])
+
+
+# return None if the "@course_buddy" tag is not found or
+# the comment is too short to be a valid bot call.
+# Otherwise return a UserRequest tuple
 def parse_comment_body(body):
-    try:
-        base = body.index(CALL_PHRASE)
+    if CALL_PHRASE not in body:
+        return None
+    base = body.index(CALL_PHRASE)
+    if len(body[base:]) < 4:
+        return None
+    else:
         action = body[base + 1]
         subject = body[base + 2]
         course_code = body[base + 3]
         return UserRequest(action, subject, course_code)
-    except (ValueError, IndexError):
-        return None
 
 
 def main():
