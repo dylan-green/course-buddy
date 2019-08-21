@@ -1,5 +1,4 @@
 import os
-import sys
 import praw
 import scrape
 from collections import namedtuple
