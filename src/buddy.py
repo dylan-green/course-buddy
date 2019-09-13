@@ -1,12 +1,11 @@
 import os
 import praw
 import scrape
-from collections import namedtuple
 from subject_codes import subject_codes
+from user_request import parse_comment_body
 
 
 USER_AGENT = "github.com/dylan-green/course-buddy:v0.1.0 (by /u/mr_nefario)"
-CALL_PHRASE = "@course\\_buddy"
 
 reddit_user = os.environ["REDDIT_USER"]
 reddit_pass = os.environ["REDDIT_PASS"]
@@ -69,26 +68,6 @@ class Buddy:
         soup = scrape.request_course_page(subject, course_code)
         self._response = scrape.get_course_summary(soup)
         self._reply()
-
-
-UserRequest = namedtuple(
-    'UserRequest', ['action', 'subject', 'course_code'])
-
-
-# return None if the "@course_buddy" tag is not found or
-# the comment is too short to be a valid bot call.
-# Otherwise return a UserRequest tuple
-def parse_comment_body(body):
-    if CALL_PHRASE not in body:
-        return None
-    base = body.index(CALL_PHRASE)
-    if len(body[base:]) < 4:
-        return None
-    else:
-        action = body[base + 1]
-        subject = body[base + 2]
-        course_code = body[base + 3]
-        return UserRequest(action, subject, course_code)
 
 
 def main():
